@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard EVM SNCF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>.tab-btn.active{border-bottom:3px solid #2563eb;color:#2563eb;font-weight:700}</style>
+</head>
+<body class="bg-gray-50">
+<div class="max-w-7xl mx-auto p-6">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-2xl p-8 mb-6">
+        <div class="flex justify-between flex-wrap gap-4">
+            <div>
+                <h1 class="text-5xl font-bold mb-2">Dashboard EVM</h1>
+                <p class="text-xl">Mission SNCF • Aide à la Décision</p>
+            </div>
+            <div class="bg-white/20 backdrop-blur px-6 py-4 rounded-xl">
+                <p class="text-xs">Budget (BAC)</p>
+                <p class="text-4xl font-bold">466 300€</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerte -->
+    <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl p-6 mb-6">
+        <h2 class="text-3xl font-bold mb-1">⚠️ Performance Dégradée</h2>
+        <p class="text-lg">CPI: 0.807 | SPI: 0.855 | Dépassement: +111 308€ (+23.9%)</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-blue-500 text-white p-5 rounded-xl"><p class="text-xs">PV</p><p class="text-3xl font-bold">245k€</p></div>
+        <div class="bg-red-500 text-white p-5 rounded-xl"><p class="text-xs">AC</p><p class="text-3xl font-bold">260k€</p></div>
+        <div class="bg-green-500 text-white p-5 rounded-xl"><p class="text-xs">EV</p><p class="text-3xl font-bold">210k€</p></div>
+        <div class="bg-purple-500 text-white p-5 rounded-xl"><p class="text-xs">VAC</p><p class="text-3xl font-bold">+111k€</p></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-2xl shadow-2xl">
+        <div class="flex border-b overflow-x-auto">
+            <button onclick="showTab('vue')" id="tab-vue" class="tab-btn active px-6 py-4 font-semibold">📊 Vue</button>
+            <button onclick="showTab('table')" id="tab-table" class="tab-btn px-6 py-4 font-semibold">📈 Tableau</button>
+            <button onclick="showTab('graph')" id="tab-graph" class="tab-btn px-6 py-4 font-semibold">📉 Graphiques</button>
+            <button onclick="showTab('analyse')" id="tab-analyse" class="tab-btn px-6 py-4 font-semibold">🔍 Analyse</button>
+            <button onclick="showTab('actions')" id="tab-actions" class="tab-btn px-6 py-4 font-semibold">⚡ Actions</button>
+        </div>
+
+        <div class="p-6">
+            <!-- Vue -->
+            <div id="content-vue">
+                <h2 class="text-3xl font-bold mb-6">Vue d'Ensemble</h2>
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-6 rounded-xl">
+                        <p class="text-sm mb-1">CPI - Efficience Économique</p>
+                        <p class="text-5xl font-bold text-orange-600">0.807</p>
+                        <div class="bg-white p-4 rounded-lg mt-3">
+                            <p class="text-sm font-bold text-orange-700 mb-1">💡 SIGNIFICATION</p>
+                            <p class="text-sm">1€ dépensé = 81 centimes de valeur. Perte de 19 centimes/€.</p>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg mt-2">
+                            <p class="text-sm font-bold text-red-700 mb-1">🎯 DÉCISION</p>
+                            <p class="text-sm">Améliorer efficience +25%. Identifier sources de perte.</p>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-xl">
+                        <p class="text-sm mb-1">SPI - Performance Délais</p>
+                        <p class="text-5xl font-bold text-yellow-600">0.855</p>
+                        <div class="bg-white p-4 rounded-lg mt-3">
+                            <p class="text-sm font-bold text-yellow-700 mb-1">💡 SIGNIFICATION</p>
+                            <p class="text-sm">85.5% vitesse prévue. 10 tâches planifiées = 8.5 réalisées.</p>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg mt-2">
+                            <p class="text-sm font-bold text-red-700 mb-1">🎯 DÉCISION</p>
+                            <p class="text-sm">Accélérer cadence. Risque: retard 3-4 sem phase ACT.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white border p-6 rounded-xl">
+                        <h3 class="font-bold text-red-700 mb-3">📉 Écarts</h3>
+                        <div class="space-y-2">
+                            <div class="bg-red-50 p-3 rounded"><p class="text-xs">CV</p><p class="text-2xl font-bold text-red-600">-50 074€</p></div>
+                            <div class="bg-orange-50 p-3 rounded"><p class="text-xs">SV</p><p class="text-2xl font-bold text-orange-600">-35 669€</p></div>
+                        </div>
+                    </div>
+                    <div class="bg-white border p-6 rounded-xl">
+                        <h3 class="font-bold text-purple-700 mb-3">🎯 Projections</h3>
+                        <div class="space-y-2">
+                            <div class="bg-purple-50 p-3 rounded"><p class="text-xs">EAC</p><p class="text-2xl font-bold">577 608€</p></div>
+                            <div class="bg-yellow-50 p-3 rounded"><p class="text-xs">TCPI</p><p class="text-2xl font-bold">1.245</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau -->
+            <div id="content-table" class="hidden">
+                <h2 class="text-3xl font-bold mb-4">Indicateurs Détaillés</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-blue-600 text-white">
+                            <tr><th class="p-2">Mois</th><th class="p-2">PV_c</th><th class="p-2">AC_c</th><th class="p-2">EV_c</th><th class="p-2">SV</th><th class="p-2">CV</th><th class="p-2">SPI</th><th class="p-2">CPI</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="p-2 font-bold">Avr</td><td class="p-2">38 620€</td><td class="p-2">38 420€</td><td class="p-2">38 620€</td><td class="p-2 bg-green-100">0€</td><td class="p-2 bg-green-100">+200€</td><td class="p-2 bg-green-100">1.00</td><td class="p-2 bg-green-100">1.01</td></tr>
+                            <tr><td class="p-2 font-bold">Mai</td><td class="p-2">80 400€</td><td class="p-2">80 080€</td><td class="p-2">80 400€</td><td class="p-2 bg-green-100">0€</td><td class="p-2 bg-green-100">+320€</td><td class="p-2 bg-green-100">1.00</td><td class="p-2 bg-green-100">1.00</td></tr>
+                            <tr><td class="p-2 font-bold">Jun</td><td class="p-2">131 570€</td><td class="p-2">138 030€</td><td class="p-2">125 791€</td><td class="p-2 bg-orange-100">-5 779€</td><td class="p-2 bg-red-100">-12 239€</td><td class="p-2 bg-orange-100">0.96</td><td class="p-2 bg-orange-100">0.91</td></tr>
+                            <tr><td class="p-2 font-bold">Jul</td><td class="p-2">182 740€</td><td class="p-2">197 345€</td><td class="p-2">171 352€</td><td class="p-2 bg-red-100">-11 388€</td><td class="p-2 bg-red-100">-25 993€</td><td class="p-2 bg-red-100">0.94</td><td class="p-2 bg-red-100">0.87</td></tr>
+                            <tr class="bg-red-50"><td class="p-2 font-bold">Août</td><td class="p-2">245 440€</td><td class="p-2">259 845€</td><td class="p-2">209 771€</td><td class="p-2 bg-red-200 font-bold">-35 669€</td><td class="p-2 bg-red-200 font-bold">-50 074€</td><td class="p-2 bg-red-200 font-bold">0.86</td><td class="p-2 bg-red-200 font-bold">0.81</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div id="content-graph" class="hidden">
+                <h2 class="text-3xl font-bold mb-4">Visualisations</h2>
+                <div class="bg-white p-4 rounded-xl mb-4">
+                    <h3 class="font-bold mb-2">Évolution Cumulée</h3>
+                    <canvas id="c1"></canvas>
+                    <p class="text-sm text-blue-700 mt-2">💡 Écart croissant EV vs PV/AC = sous-performance</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl">
+                    <h3 class="font-bold mb-2">Indices</h3>
+                    <canvas id="c2"></canvas>
+                    <p class="text-sm text-orange-700 mt-2">💡 Chute depuis juin. Objectif: > 0.90</p>
+                </div>
+            </div>
+
+            <!-- Analyse -->
+            <div id="content-analyse" class="hidden">
+                <h2 class="text-3xl font-bold mb-4">Analyse par Période</h2>
+                <div class="space-y-4">
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-xl">
+                        <h3 class="font-bold text-green-700 mb-2">✅ Avril-Mai : Conforme</h3>
+                        <p class="text-sm">CPI/SPI=1.00. Équipe performante, processus efficaces.</p>
+                    </div>
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-xl">
+                        <h3 class="font-bold text-orange-700 mb-2">⚠️ Juin : Alerte</h3>
+                        <p class="text-sm">CPI=0.911. Livrables MOE insuffisants. Pas d'actions correctives.</p>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl">
+                        <h3 class="font-bold text-red-700 mb-2">🔴 Juil-Août : Aggravation</h3>
+                        <p class="text-sm">CPI=0.807. Accumulation 50k€ surcoût. Resp Tech: 86%.</p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4 mt-4">
+                    <div class="bg-white p-4 rounded-lg border">
+                        <p class="font-bold text-green-700">Chef: 100%</p>
+                        <p class="text-xs text-gray-600">Seule ressource performante</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <p class="font-bold text-orange-700">Resp Tech: 86%</p>
+                        <p class="text-xs text-gray-600">Cause principale dérive</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <p class="font-bold text-yellow-700">Assistante: 95%</p>
+                        <p class="text-xs text-gray-600">Performance variable</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div id="content-actions" class="hidden">
+                <h2 class="text-3xl font-bold mb-4">Plan d'Actions</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="bg-red-50 border-l-4 border-red-500 p-5 rounded-xl">
+                            <h3 class="font-bold text-xl text-red-700 mb-3">🚨 IMMÉDIAT (Sem 1)</h3>
+                            <div class="space-y-2 text-sm">
+                                <p>1️⃣ Réunion crise MOE (48h)</p>
+                                <p>2️⃣ Audit complet</p>
+                                <p>3️⃣ Budget +110k€</p>
+                                <p>4️⃣ Gel dépenses > 5k€</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl">
+                            <h3 class="font-bold text-xl text-orange-700 mb-3">📅 COURT TERME (Mois 1)</h3>
+                            <div class="space-y-2 text-sm">
+                                <p>5️⃣ Réduire mobilisation 75%</p>
+                                <p>6️⃣ Contrôle hebdomadaire</p>
+                                <p>7️⃣ Pénalités contractuelles</p>
+                                <p>8️⃣ Plan rattrapage MOE</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-500 p-5 rounded-xl mt-6">
+                    <h3 class="font-bold text-xl text-green-700 mb-3">🎯 OBJECTIFS</h3>
+                    <div class="grid md:grid-cols-3 gap-4 text-sm">
+                        <div><p class="font-bold">Sept:</p><p>CPI/SPI ≥ 0.90</p></div>
+                        <div><p class="font-bold">Oct-Nov:</p><p>90% livrables</p></div>
+                        <div><p class="font-bold">Jan:</p><p>EAC ≤ 550k€</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(t){
+    document.querySelectorAll('[id^="content-"]').forEach(e=>e.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
+    document.getElementById('content-'+t).classList.remove('hidden');
+    document.getElementById('tab-'+t).classList.add('active');
+    if(t==='graph')initCharts();
+}
+function initCharts(){
+    const c1=document.getElementById('c1');
+    if(!c1.c)c1.c=new Chart(c1,{type:'line',data:{labels:['Avr','Mai','Jun','Jul','Aoû'],datasets:[{label:'PV',data:[38620,80400,131570,182740,245440],borderColor:'#3B82F6'},{label:'AC',data:[38420,80080,138030,197345,259845],borderColor:'#EF4444'},{label:'EV',data:[38620,80400,125791,171352,209771],borderColor:'#10B981'}]}});
+    const c2=document.getElementById('c2');
+    if(!c2.c)c2.c=new Chart(c2,{type:'bar',data:{labels:['Avr','Mai','Jun','Jul','Aoû'],datasets:[{label:'SPI',data:[1,1,0.956,0.938,0.855],backgroundColor:'#8B5CF6'},{label:'CPI',data:[1.005,1.004,0.911,0.868,0.807],backgroundColor:'#10B981'}]},options:{scales:{y:{max:1.2}}}});
+}
+</script>
+</body>
+</html>
