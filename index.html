@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)file:///C:/Users/HP/Downloads/Dashboard_Risques.html -->
+<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Gestion des Risques - Gare Villeneuve SG</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .header-left p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+        
+        .stat-card.critical::before {
+            background: linear-gradient(180deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .stat-card.elevated::before {
+            background: linear-gradient(180deg, #fd7e14 0%, #e8590c 100%);
+        }
+        
+        .stat-card.budget::before {
+            background: linear-gradient(180deg, #28a745 0%, #218838 100%);
+        }
+        
+        .stat-card.progress::before {
+            background: linear-gradient(180deg, #17a2b8 0%, #138496 100%);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .stat-subtitle {
+            font-size: 13px;
+            color: #adb5bd;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #212529;
+        }
+        
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #495057;
+        }
+        
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .risk-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        
+        .risk-row {
+            background: #f8f9fa;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .risk-row:hover {
+            background: #e9ecef;
+            transform: scale(1.01);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .risk-row td {
+            padding: 15px;
+            border: none;
+        }
+        
+        .risk-row td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .risk-row td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .risk-id {
+            font-weight: 700;
+            font-size: 16px;
+            color: #495057;
+        }
+        
+        .risk-title {
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 3px;
+        }
+        
+        .risk-category {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .criticality-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .crit-critique {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+        }
+        
+        .crit-eleve {
+            background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(253, 126, 20, 0.3);
+        }
+        
+        .crit-moyen {
+            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+            color: #000;
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+        }
+        
+        .budget-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #28a745;
+        }
+        
+        .matrix-container {
+            display: grid;
+            grid-template-columns: 80px repeat(4, 1fr);
+            grid-template-rows: 60px repeat(4, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+        
+        .matrix-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .matrix-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .matrix-header {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            color: white;
+            font-size: 11px;
+            text-align: center;
+        }
+        
+        .matrix-label {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            font-size: 11px;
+        }
+        
+        .risk-16 { background: linear-gradient(135deg, #721c24 0%, #5a1419 100%); color: white; }
+        .risk-12 { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+        .risk-9 { background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%); color: white; }
+        .risk-8 { background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%); color: white; }
+        .risk-6 { background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); color: #000; }
+        .risk-4 { background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); color: #000; }
+        .risk-3 { background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; }
+        .risk-2 { background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; }
+        .risk-1 { background: linear-gradient(135deg, #20c997 0%, #1aa179 100%); color: white; }
+        
+        .risk-ids {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s;
+        }
+        
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #212529;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: #dc3545;
+            transform: rotate(90deg);
+        }
+        
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        
+        .detail-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            color: #212529;
+            line-height: 1.6;
+        }
+        
+        .action-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .action-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            padding-left: 35px;
+            position: relative;
+        }
+        
+        .action-item::before {
+            content: '→';
+            position: absolute;
+            left: 12px;
+            color: #667eea;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        @media print {
+            body { background: white; }
+            .export-btn { display: none; }
+        }
+        
+        @media (max-width: 1200px) {
+            .content-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <div class="header-left">
+                <h1>🎯 Gestion des Risques</h1>
+                <p>Projet Réaménagement Gare RER Villeneuve Saint-Georges</p>
+            </div>
+            <div class="header-right">
+                <button class="export-btn" onclick="window.print()">📄 Imprimer/PDF</button>
+                <button class="export-btn" onclick="copyToClipboard()">📋 Copier Données</button>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card critical">
+                <div class="stat-label">Risques Critiques</div>
+                <div class="stat-value">2</div>
+                <div class="stat-subtitle">Criticité ≥ 12 • Traitement prioritaire</div>
+            </div>
+            <div class="stat-card elevated">
+                <div class="stat-label">Risques Élevés</div>
+                <div class="stat-value">7</div>
+                <div class="stat-subtitle">Criticité 8-11 • Traitement requis</div>
+            </div>
+            <div class="stat-card budget">
+                <div class="stat-label">Budget Total</div>
+                <div class="stat-value">1 088 k€</div>
+                <div class="stat-subtitle">13,3% du budget travaux • Conforme PMI</div>
+            </div>
+            <div class="stat-card progress">
+                <div class="stat-label">Taux de Traitement</div>
+                <div class="stat-value">90%</div>
+                <div class="stat-subtitle">9/10 risques avec plan d'action</div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Registre des Risques</h2>
+                </div>
+                
+                <div class="filter-container">
+                    <button class="filter-btn active" onclick="filterRisks(&#39;all&#39;)">Tous</button>
+                    <button class="filter-btn" onclick="filterRisks(&#39;CRITIQUE&#39;)">Critiques</button>
+                    <button class="filter-btn" onclick="filterRisks(&#39;ÉLEVÉ&#39;)">Élevés</button>
+                    <button class="filter-btn" onclick="filterRisks(&#39;MOYEN&#39;)">Moyens</button>
+                </div>
+                
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Rechercher un risque..." onkeyup="searchRisks()">
+                
+                <table class="risk-table" id="riskTable"><tr class="risk-row">
+                    <td><div class="risk-id">R01</div></td>
+                    <td>
+                        <div class="risk-title">Interruption partielle service voyageurs durant travaux RDC</div>
+                        <div class="risk-category">Exploitation</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-critique">CRITIQUE</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">42 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R02</div></td>
+                    <td>
+                        <div class="risk-title">Retard approvisionnement équipements électroniques</div>
+                        <div class="risk-category">Technique</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-critique">CRITIQUE</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">32 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R03</div></td>
+                    <td>
+                        <div class="risk-title">Difficultés accès chantier</div>
+                        <div class="risk-category">Logistique</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-elevé">ÉLEVÉ</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">22 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R04</div></td>
+                    <td>
+                        <div class="risk-title">Conflits planning marchés</div>
+                        <div class="risk-category">Coordination</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-elevé">ÉLEVÉ</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">15 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R05</div></td>
+                    <td>
+                        <div class="risk-title">Non-conformité PMR</div>
+                        <div class="risk-category">Réglementaire</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-elevé">ÉLEVÉ</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">28 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R06</div></td>
+                    <td>
+                        <div class="risk-title">Accident coactivité</div>
+                        <div class="risk-category">Sécurité</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-elevé">ÉLEVÉ</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">58 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R07</div></td>
+                    <td>
+                        <div class="risk-title">Dépassement budget</div>
+                        <div class="risk-category">Financier</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-elevé">ÉLEVÉ</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">816 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R08</div></td>
+                    <td>
+                        <div class="risk-title">Découverte réseaux/amiante</div>
+                        <div class="risk-category">Technique</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-elevé">ÉLEVÉ</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">45 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R09</div></td>
+                    <td>
+                        <div class="risk-title">Retard démarrage travaux</div>
+                        <div class="risk-category">Planning</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-elevé">ÉLEVÉ</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">12 k€</span>
+                    </td>
+                </tr><tr class="risk-row">
+                    <td><div class="risk-id">R10</div></td>
+                    <td>
+                        <div class="risk-title">Défaut communication usagers</div>
+                        <div class="risk-category">Communication</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-moyen">MOYEN</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">18 k€</span>
+                    </td>
+                </tr></table>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Matrice de Criticité</h2>
+                </div>
+                
+                <div class="matrix-container">
+                    <div class="matrix-cell matrix-header" style="grid-column: 1; grid-row: 1;"></div>
+                    <div class="matrix-cell matrix-header">1<br>Négl.</div>
+                    <div class="matrix-cell matrix-header">2<br>Grave</div>
+                    <div class="matrix-cell matrix-header">3<br>Crit.</div>
+                    <div class="matrix-cell matrix-header">4<br>Catast.</div>
+                    
+                    <div class="matrix-cell matrix-label">4<br>Probable</div>
+                    <div class="matrix-cell risk-4">4</div>
+                    <div class="matrix-cell risk-8">8<div class="risk-ids">R03</div></div>
+                    <div class="matrix-cell risk-12">12<div class="risk-ids">R01</div></div>
+                    <div class="matrix-cell risk-16">16</div>
+                    
+                    <div class="matrix-cell matrix-label">3<br>Occ.</div>
+                    <div class="matrix-cell risk-3">3</div>
+                    <div class="matrix-cell risk-6">6</div>
+                    <div class="matrix-cell risk-9">9<div class="risk-ids">R04,R07<br>R08,R09</div></div>
+                    <div class="matrix-cell risk-12">12<div class="risk-ids">R02</div></div>
+                    
+                    <div class="matrix-cell matrix-label">2<br>Rare</div>
+                    <div class="matrix-cell risk-2">2</div>
+                    <div class="matrix-cell risk-4">4<div class="risk-ids">R10</div></div>
+                    <div class="matrix-cell risk-6">6</div>
+                    <div class="matrix-cell risk-8">8<div class="risk-ids">R05,R06</div></div>
+                    
+                    <div class="matrix-cell matrix-label">1<br>Imp.</div>
+                    <div class="matrix-cell risk-1">1</div>
+                    <div class="matrix-cell risk-2">2</div>
+                    <div class="matrix-cell risk-3">3</div>
+                    <div class="matrix-cell risk-4">4</div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="categoryChart" width="526" height="375" style="display: block; box-sizing: border-box; height: 300px; width: 420.9px;"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">💰 Répartition du Budget</h2>
+            </div>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="budgetChart" width="1766" height="500" style="display: block; box-sizing: border-box; height: 400px; width: 1412.8px;"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="riskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+    
+    <script>
+        const risks = [{"id":"R01","category":"Exploitation","title":"Interruption partielle service voyageurs durant travaux RDC","probability":4,"gravity":3,"criticality":12,"level":"CRITIQUE","impactCost":"50-80 k€","impactDelay":"2-3 semaines","responsible":"Chef projet MOA + Resp. exploitation SNCF","budget":42,"kpi":"Taux réclamations < 5%","preventive":["Phasage travaux par zones successives","Installation billetterie temporaire AVANT travaux","Communication usagers massive 2 mois avant"],"corrective":["Équipe régulation supplémentaire","Prolongation horaires billetterie temporaire"]},{"id":"R02","category":"Technique","title":"Retard approvisionnement équipements électroniques","probability":3,"gravity":4,"criticality":12,"level":"CRITIQUE","impactCost":"120-180 k€","impactDelay":"3-5 mois","responsible":"Resp. technique MOA + Maintenance SNCF","budget":32,"kpi":"Délai réception < 10j","preventive":["Commande anticipée +6 mois","Identification 2 fournisseurs alternatifs"],"corrective":["Réorganisation planning","Activation fournisseurs alternatifs"]},{"id":"R03","category":"Logistique","title":"Difficultés accès chantier","probability":4,"gravity":2,"criticality":8,"level":"ÉLEVÉ","impactCost":"15-25 k€","impactDelay":"1-2 semaines","responsible":"Conducteur travaux","budget":22,"kpi":"Respect créneaux > 90%","preventive":["Base logistique externe","Planning livraisons optimisé"],"corrective":["Livraisons nocturnes","Renforcement manutention"]},{"id":"R04","category":"Coordination","title":"Conflits planning marchés","probability":3,"gravity":3,"criticality":9,"level":"ÉLEVÉ","impactCost":"40-60 k€","impactDelay":"3-6 semaines","responsible":"Chef de projet MOA","budget":15,"kpi":"Nb conflits < 3","preventive":["Réunion coordination hebdomadaire"],"corrective":["Médiation MOA/MOE sous 48h"]},{"id":"R05","category":"Réglementaire","title":"Non-conformité PMR","probability":2,"gravity":4,"criticality":8,"level":"ÉLEVÉ","impactCost":"80-150 k€","impactDelay":"2-4 mois","responsible":"MOE + Bureau contrôle","budget":28,"kpi":"Zéro réserve PMR","preventive":["Audit PMR complet dès ESQ/APS"],"corrective":["Études modificatives urgentes"]},{"id":"R06","category":"Sécurité","title":"Accident coactivité","probability":2,"gravity":4,"criticality":8,"level":"ÉLEVÉ","impactCost":"100-1000+ k€","impactDelay":"1-4 semaines","responsible":"Coord. SPS","budget":58,"kpi":"Zéro accident","preventive":["Plan prévention RENFORCÉ","Agent sécurité permanent"],"corrective":["Procédure urgence testée"]},{"id":"R07","category":"Financier","title":"Dépassement budget","probability":3,"gravity":3,"criticality":9,"level":"ÉLEVÉ","impactCost":"10-15% budget","impactDelay":"Variable","responsible":"Chef projet MOA","budget":816,"kpi":"Écart coût < 5%","preventive":["Provision aléas 10%","Suivi financier mensuel"],"corrective":["Analyse valeur","Renégociation"]},{"id":"R08","category":"Technique","title":"Découverte réseaux/amiante","probability":3,"gravity":3,"criticality":9,"level":"ÉLEVÉ","impactCost":"50-120 k€","impactDelay":"3-8 semaines","responsible":"Resp. technique MOA","budget":45,"kpi":"Nb arrêts < 2","preventive":["Investigations exhaustives"],"corrective":["Désamiantage urgence"]},{"id":"R09","category":"Planning","title":"Retard démarrage travaux","probability":3,"gravity":3,"criticality":9,"level":"ÉLEVÉ","impactCost":"30-50 k€","impactDelay":"1-3 mois","responsible":"Chef de projet MOA","budget":12,"kpi":"Respect date ±2 sem","preventive":["Anticipation dépôts admin"],"corrective":["Réduction période conception"]},{"id":"R10","category":"Communication","title":"Défaut communication usagers","probability":2,"gravity":2,"criticality":4,"level":"MOYEN","impactCost":"10-20 k€","impactDelay":"Ralentissements","responsible":"Resp. comm SNCF","budget":18,"kpi":"Satisfaction > 70%","preventive":["Plan communication dès montage"],"corrective":["Réunion publique extraordinaire"]}];
+        
+        let currentFilter = 'all';
+        
+        function populateRiskTable() {
+            const table = document.getElementById('riskTable');
+            table.innerHTML = '';
+            
+            risks.forEach(risk => {
+                if (currentFilter !== 'all' && risk.level !== currentFilter) return;
+                
+                const row = document.createElement('tr');
+                row.className = 'risk-row';
+                row.onclick = () => openModal(risk.id);
+                
+                row.innerHTML = `
+                    <td><div class="risk-id">${risk.id}</div></td>
+                    <td>
+                        <div class="risk-title">${risk.title}</div>
+                        <div class="risk-category">${risk.category}</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="criticality-badge crit-${risk.level.toLowerCase().replace('é', 'e')}">${risk.level}</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="budget-value">${risk.budget} k€</span>
+                    </td>
+                `;
+                
+                table.appendChild(row);
+            });
+        }
+        
+        function filterRisks(level) {
+            currentFilter = level;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            populateRiskTable();
+        }
+        
+        function searchRisks() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            document.querySelectorAll('.risk-row').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+            });
+        }
+        
+        function copyToClipboard() {
+            const data = risks.map(r => `${r.id}\t${r.category}\t${r.title}\t${r.probability}\t${r.gravity}\t${r.criticality}\t${r.level}\t${r.budget}\t${r.responsible}`).join('\n');
+            const header = 'ID\tCatégorie\tRisque\tProba\tGravité\tCriticité\tNiveau\tBudget\tResponsable\n';
+            navigator.clipboard.writeText(header + data).then(() => alert('✅ Données copiées !'));
+        }
+        
+        function openModal(riskId) {
+            const risk = risks.find(r => r.id === riskId);
+            if (!risk) return;
+            
+            document.getElementById('modalTitle').textContent = `${risk.id} - ${risk.title}`;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-label">Catégorie</div>
+                    <div class="detail-value">${risk.category}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Évaluation</div>
+                    <div class="detail-value">Probabilité: ${risk.probability}/4 | Gravité: ${risk.gravity}/4 | 
+                    <span class="criticality-badge crit-${risk.level.toLowerCase().replace('é', 'e')}">${risk.level} (${risk.criticality})</span></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Impact</div>
+                    <div class="detail-value"><strong>Coût:</strong> ${risk.impactCost}<br><strong>Délai:</strong> ${risk.impactDelay}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Responsable</div>
+                    <div class="detail-value">${risk.responsible}</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Budget Alloué</div>
+                    <div class="detail-value budget-value">${risk.budget} k€</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Actions Préventives</div>
+                    <ul class="action-list">${risk.preventive.map(a => `<li class="action-item">${a}</li>`).join('')}</ul>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Actions Correctives</div>
+                    <ul class="action-list">${risk.corrective.map(a => `<li class="action-item">${a}</li>`).join('')}</ul>
+                </div>
+            `;
+            document.getElementById('riskModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('riskModal').classList.remove('active');
+        }
+        
+        document.getElementById('riskModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        
+        function initCharts() {
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const categoryData = {};
+            risks.forEach(r => categoryData[r.category] = (categoryData[r.category] || 0) + 1);
+            
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140', '#30cfd0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Répartition par Catégorie' }
+                    }
+                }
+            });
+            
+            const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+            new Chart(budgetCtx, {
+                type: 'bar',
+                data: {
+                    labels: risks.map(r => r.id),
+                    datasets: [{
+                        label: 'Budget (k€)',
+                        data: risks.map(r => r.budget),
+                        backgroundColor: risks.map(r => r.level === 'CRITIQUE' ? '#dc3545' : r.level === 'ÉLEVÉ' ? '#fd7e14' : '#ffc107'),
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Budget par Risque (k€)' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: v => v + ' k€' } }
+                    }
+                }
+            });
+        }
+        
+        window.addEventListener('load', function() {
+            populateRiskTable();
+            initCharts();
+        });
+    </script>
+
+</body></html>
